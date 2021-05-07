@@ -1,0 +1,24 @@
+library(plotly)
+#library(dygraphs)
+library(prophet)
+library(shinythemes)
+library(shinyjs)
+library(dplyr)
+
+options(digits = 5)
+
+# load the virtual env
+reticulate::virtualenv_create("python35_env", python = "python3")
+reticulate::virtualenv_install("python35_env",
+                               packages = c("bdshare"),
+                               ignore_installed = T)
+reticulate::use_virtualenv("python35_env", required = TRUE)
+
+# read instrument names
+inst_name <- readr::read_csv("Inst.csv")
+inst_name <- inst_name$TRADING.CODE
+t_default <- which(inst_name == "ACI")
+
+# set the dates
+enddate <- Sys.Date()
+startdate <- enddate - 365 * 2

@@ -1,0 +1,2 @@
+# Forecasting Stock Prices with Facebook's Prophet forecasting procedure
+This shinyapp forecasts instruments of Dhaka Stock Exchange using [Facebook's Prophet procedure](https://facebook.github.io/prophet/). 
