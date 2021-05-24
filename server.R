@@ -59,34 +59,43 @@ shinyServer(function(input, output) {
       df_plot <-
         df_plot %>% mutate_at(c(4:6), plyr::round_any, .10)
       
-      pplot <- plot_ly(
-        df_plot,
-        x = ~ ds,
-        y = ~ CLOSEP,
-        size = ~ VALUE,
-        fill = ~ '',
-        type = "scatter",
-        mode = "lines+markers",
-        name = "Actual Price",
-        width = 1000,
-        height = 450
-      ) %>% add_trace(y = ~ yhat,
-                      name = "Forecasted Price",
-                      mode = "lines") %>% add_trace(
-                        y = ~ yhat_upper,
-                        name = "Upper Band",
-                        mode = "lines",
-                        line = list(dash = "dot")
-                      ) %>% add_trace(
-                        y = ~ yhat_lower,
-                        name = "Lower Band",
-                        mode = "lines",
-                        line = list(dash = "dot")
-                      ) %>% layout(
-                        title = paste0("<br>", instrument),
-                        xaxis = list(title = "Date"),
-                        yaxis = list(title = "Price [The Bubble Size Represents Total Value (in Million)]")
-                      )
+      pplot <- plot_ly(df_plot,
+                       x = ~ ds,
+                       width = 1000,
+                       height = 450) %>%
+        
+        add_trace(
+          y = ~ CLOSEP,
+          size = ~ VALUE,
+          fill = ~ '',
+          type = "scatter",
+          mode = "lines+markers",
+          name = "Actual Price",
+          marker = list(color = "blue", opacity = 0.5),
+          text = ~ paste("</br> Closing Price:", CLOSEP,  "</br> Total Value:", VALUE, "M"),
+          hoverinfo = "text"
+        ) %>% add_trace(
+          y = ~ yhat,
+          name = "Forecasted Price",
+          type = "scatter",
+          mode = "lines"
+        ) %>% add_trace(
+          y = ~ yhat_upper,
+          name = "Upper Band",
+          type = "scatter",
+          mode = "lines",
+          line = list(dash = "dot")
+        ) %>% add_trace(
+          y = ~ yhat_lower,
+          name = "Lower Band",
+          type = "scatter",
+          mode = "lines",
+          line = list(dash = "dot")
+        ) %>% layout(
+          title = paste0("<br>", instrument),
+          xaxis = list(title = "Date"),
+          yaxis = list(title = "Closing Price")
+        )
       
       # return the outcomes
       return(list(output_forecast = pplot, output_eval = model_eval))
