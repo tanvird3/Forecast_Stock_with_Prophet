@@ -72,7 +72,7 @@ shinyServer(function(input, output) {
           mode = "lines+markers",
           name = "Actual Price",
           marker = list(color = "blue", opacity = 0.5),
-          text = ~ paste("</br> Closing Price:", CLOSEP,  "</br> Total Value:", VALUE, "M"),
+          text = ~ paste("</br> Date:", ds, "</br> Closing Price:", CLOSEP,  "</br> Total Value:", VALUE, "M"),
           hoverinfo = "text"
         ) %>% add_trace(
           y = ~ yhat,
