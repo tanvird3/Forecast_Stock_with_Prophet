@@ -17,7 +17,8 @@ shinyServer(function(input, output) {
       
       # fit the model
       model_fit <- prophet(df_mod, seasonality.mode = "additive")
-      future_get <- make_future_dataframe(model_fit, periods = 60)
+      future_get <- make_future_dataframe(model_fit, periods = 68)
+      future_get <- future_get %>% mutate(wd = weekdays(ds)) %>% filter(!wd %in% c("Friday", "Saturday")) %>% select(-wd)
       forecast_get <-
         predict(model_fit, future_get) %>% select(ds, yhat, yhat_lower, yhat_upper)
       
