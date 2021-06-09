@@ -62,7 +62,7 @@ shinyServer(function(input, output) {
         df_plot %>% mutate_at(c(4:6), plyr::round_any, .10)
       
       pplot <- plot_ly(df_plot,
-                       x = ~ ds,
+                       x = ~ ds
                        #width = 1000,
                        #height = 450
                        ) %>%
@@ -105,14 +105,13 @@ shinyServer(function(input, output) {
                        ) %>% layout(
                          title = paste0("<br>", instrument),
                          xaxis = list(title = "Date"),
-                         yaxis = list(title = "Closing Price"),
+                         yaxis = list(title = "Closing Price"), 
                          margin = list(t = 120),
                          legend = list(
                            orientation = "h",
                            x = 0,
                            y = 1.4
-                         )
-                       )
+                         ))
                        
                        # return the outcomes
                        return(list(output_forecast = pplot, output_eval = model_eval))
@@ -132,14 +131,6 @@ shinyServer(function(input, output) {
   output$output_eval <- renderTable({
     output_get()$output_eval
   })
-  
-  # output$output_forecast <- renderPlotly({
-  #   forecast_func(input$instrument, input$crossvalidation)$output_forecast
-  # })
-  #
-  # output$output_eval <- renderTable({
-  #   forecast_func(input$instrument, input$crossvalidation)$output_eval
-  # })
   
   lapply(c("output_forecast", "output_eval"), function(x)
     outputOptions(output, x, suspendWhenHidden = F))
