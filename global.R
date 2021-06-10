@@ -15,7 +15,9 @@ reticulate::virtualenv_install("python35_env",
 reticulate::use_virtualenv("python35_env", required = TRUE)
 
 # read instrument names
-inst_name <- readr::read_csv("Inst.csv")
+inst_url <- "https://raw.githubusercontent.com/tanvird3/instrument_list/master/Inst.csv"
+inst_name <- readr::read_csv(url(inst_url))
+#inst_name <- readr::read_csv("Inst.csv")
 inst_name <- inst_name$TRADING.CODE
 t_default <- which(inst_name == "ACI")
 

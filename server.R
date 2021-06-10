@@ -59,62 +59,72 @@ shinyServer(function(input, output) {
         df_dt %>% mutate(ds = as.Date(ds, format = "%Y-%m-%d"))
       df_plot <- df_dt %>% full_join(forecast_get, by = "ds")
       df_plot <-
-        df_plot %>% mutate_at(c(4:6), plyr::round_any, .10)
+        df_plot %>% mutate_at(c(4:6), plyr::round_any, .10) %>% slice_tail(n = 100)
       
       pplot <- plot_ly(df_plot,
-                       x = ~ ds
-                       #width = 1000,
-                       #height = 450
-                       ) %>%
-                       
-                       add_trace(
-                         y = ~ CLOSEP,
-                         size = ~ VALUE,
-                         fill = ~ '',
-                         type = "scatter",
-                         mode = "lines+markers",
-                         name = "Actual Price",
-                         marker = list(color = "blue", opacity = 0.5),
-                         text = ~ paste(
-                           "</br> Date:",
-                           ds,
-                           "</br> Closing Price:",
-                           CLOSEP,
-                           "</br> Total Value:",
-                           VALUE,
-                           "M"
-                         ),
-                         hoverinfo = "text"
-                       ) %>% add_trace(
-                         y = ~ yhat,
-                         name = "Forecasted Price",
-                         type = "scatter",
-                         mode = "lines"
-                       ) %>% add_trace(
-                         y = ~ yhat_upper,
-                         name = "Upper Band",
-                         type = "scatter",
-                         mode = "lines",
-                         line = list(dash = "dot")
-                       ) %>% add_trace(
-                         y = ~ yhat_lower,
-                         name = "Lower Band",
-                         type = "scatter",
-                         mode = "lines",
-                         line = list(dash = "dot")
-                       ) %>% layout(
-                         title = paste0("<br>", instrument),
-                         xaxis = list(title = "Date"),
-                         yaxis = list(title = "Closing Price"), 
-                         margin = list(t = 120),
-                         legend = list(
-                           orientation = "h",
-                           x = 0,
-                           y = 1.4
-                         ))
-                       
-                       # return the outcomes
-                       return(list(output_forecast = pplot, output_eval = model_eval))
+                       x = ~ ds) %>%
+        
+        add_trace(
+          y = ~ yhat_upper,
+          name = "Upper Band",
+          type = "scatter",
+          mode = "lines",
+          line = list(dash = "dot", color = "#B82E2E"),
+          showlegend = F
+        ) %>% add_trace(
+          y = ~ yhat_lower,
+          name = "Lower Band",
+          type = "scatter",
+          mode = "lines",
+          line = list(dash = "dot", color = "#990099"),
+          fill = "tonexty",
+          fillcolor = "rgba(0,100,80,0.2)",
+          showlegend = F
+        ) %>%
+        
+        add_trace(
+          y = ~ yhat,
+          name = "Forecasted Price",
+          type = "scatter",
+          mode = "lines",
+          line = list(color = "#109618")
+        ) %>%
+        
+        add_trace(
+          y = ~ CLOSEP,
+          size = ~ VALUE,
+          fill = ~ '',
+          type = "scatter",
+          mode = "lines+markers",
+          name = "Actual Price",
+          line = list(color = "blue"),
+          marker = list(color = "blue", opacity = 0.5),
+          text = ~ paste(
+            "</br> Date:",
+            ds,
+            "</br> Closing Price:",
+            CLOSEP,
+            "</br> Total Value:",
+            VALUE,
+            "M"
+          ),
+          hoverinfo = "text"
+        ) %>%
+        
+        layout(
+          title = paste0("<br>", instrument),
+          xaxis = list(title = "Date"),
+          yaxis = list(title = "Closing Price"),
+          margin = list(t = 120),
+          legend = list(
+            orientation = "h",
+            x = 0,
+            y = 1.4
+          )
+        )
+      
+      # return the outcomes
+      return(list(output_forecast = pplot, output_eval = model_eval))
     }
   
   # generate the output
@@ -136,4 +146,3 @@ shinyServer(function(input, output) {
     outputOptions(output, x, suspendWhenHidden = F))
   
 })
-      
