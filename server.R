@@ -71,13 +71,9 @@ shinyServer(function(input, output) {
           mode = "lines",
           line = list(dash = "dot", color = "#B82E2E"),
           showlegend = F
-<<<<<<< HEAD
         ) %>% 
         
         add_trace(
-=======
-        ) %>% add_trace(
->>>>>>> 23253488ee7c93a008ae7d948ca6e16000a81646
           y = ~ yhat_lower,
           name = "Lower Band",
           type = "scatter",
@@ -104,21 +100,13 @@ shinyServer(function(input, output) {
           mode = "lines+markers",
           name = "Actual Price",
           line = list(color = "blue"),
-<<<<<<< HEAD
           marker = list(color = "blue", opacity = 0.5, line = list(color = "blue")),
-=======
-          marker = list(color = "blue", opacity = 0.5),
->>>>>>> 23253488ee7c93a008ae7d948ca6e16000a81646
           text = ~ paste(
             "</br> Date:",
             ds,
             "</br> Closing Price:",
             CLOSEP,
-<<<<<<< HEAD
             "</br> Volume:",
-=======
-            "</br> Total Value:",
->>>>>>> 23253488ee7c93a008ae7d948ca6e16000a81646
             VALUE,
             "M"
           ),
