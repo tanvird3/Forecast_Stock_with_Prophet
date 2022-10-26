@@ -17,7 +17,9 @@ shinyServer(function(input, output) {
       
       # fit the model
       model_fit <- prophet(df_mod, seasonality.mode = "additive")
-      future_get <- make_future_dataframe(model_fit, periods = 60)
+      future_get <- make_future_dataframe(model_fit, periods = 68)
+      future_get <-
+        future_get %>% mutate(wd = weekdays(ds)) %>% filter(!wd %in% c("Friday", "Saturday")) %>% select(-wd)
       forecast_get <-
         predict(model_fit, future_get) %>% select(ds, yhat, yhat_lower, yhat_upper)
       
@@ -57,36 +59,71 @@ shinyServer(function(input, output) {
         df_dt %>% mutate(ds = as.Date(ds, format = "%Y-%m-%d"))
       df_plot <- df_dt %>% full_join(forecast_get, by = "ds")
       df_plot <-
-        df_plot %>% mutate_at(c(4:6), plyr::round_any, .10)
+        df_plot %>% mutate_at(c(4:6), plyr::round_any, .10) %>% slice_tail(n = 100)
       
-      pplot <- plot_ly(
-        df_plot,
-        x = ~ ds,
-        y = ~ CLOSEP,
-        size = ~ VALUE,
-        fill = ~ '',
-        type = "scatter",
-        mode = "lines+markers",
-        name = "Actual Price",
-        width = 1000,
-        height = 450
-      ) %>% add_trace(y = ~ yhat,
-                      name = "Forecasted Price",
-                      mode = "lines") %>% add_trace(
-                        y = ~ yhat_upper,
-                        name = "Upper Band",
-                        mode = "lines",
-                        line = list(dash = "dot")
-                      ) %>% add_trace(
-                        y = ~ yhat_lower,
-                        name = "Lower Band",
-                        mode = "lines",
-                        line = list(dash = "dot")
-                      ) %>% layout(
-                        title = paste0("<br>", instrument),
-                        xaxis = list(title = "Date"),
-                        yaxis = list(title = "Price [The Bubble Size Represents Total Value (in Million)]")
-                      )
+      pplot <- plot_ly(df_plot,
+                       x = ~ ds) %>%
+        
+        add_trace(
+          y = ~ yhat_upper,
+          name = "Upper Band",
+          type = "scatter",
+          mode = "lines",
+          line = list(dash = "dot", color = "#B82E2E"),
+          showlegend = F
+        ) %>% 
+        
+        add_trace(
+          y = ~ yhat_lower,
+          name = "Lower Band",
+          type = "scatter",
+          mode = "lines",
+          line = list(dash = "dot", color = "#990099"),
+          fill = "tonexty",
+          fillcolor = "rgba(0,100,80,0.2)",
+          showlegend = F
+        ) %>%
+        
+        add_trace(
+          y = ~ yhat,
+          name = "Forecasted Price",
+          type = "scatter",
+          mode = "lines",
+          line = list(color = "#109618")
+        ) %>%
+        
+        add_trace(
+          y = ~ CLOSEP,
+          size = ~ VALUE,
+          fill = ~ '',
+          type = "scatter",
+          mode = "lines+markers",
+          name = "Actual Price",
+          line = list(color = "blue"),
+          marker = list(color = "blue", opacity = 0.5, line = list(color = "blue")),
+          text = ~ paste(
+            "</br> Date:",
+            ds,
+            "</br> Closing Price:",
+            CLOSEP,
+            "</br> Volume:",
+            VALUE,
+            "M"
+          ),
+          hoverinfo = "text"
+        ) %>%
+        
+        layout(
+          title = paste0("<br>", instrument),
+          xaxis = list(title = "Date"),
+          yaxis = list(title = "Closing Price"),
+          margin = list(t = 120),
+          legend = list(
+            orientation = "h",
+            x = 0,
+            y = 1.4
+          )
+        )
       
       # return the outcomes
       return(list(output_forecast = pplot, output_eval = model_eval))
@@ -106,14 +143,6 @@ shinyServer(function(input, output) {
   output$output_eval <- renderTable({
     output_get()$output_eval
   })
-  
-  # output$output_forecast <- renderPlotly({
-  #   forecast_func(input$instrument, input$crossvalidation)$output_forecast
-  # })
-  #
-  # output$output_eval <- renderTable({
-  #   forecast_func(input$instrument, input$crossvalidation)$output_eval
-  # })
   
   lapply(c("output_forecast", "output_eval"), function(x)
     outputOptions(output, x, suspendWhenHidden = F))
